@@ -2507,7 +2507,7 @@ void Spell::EffectPickPocket(SpellEffectIndex /*eff_idx*/)
     {
         int32 chance = 10 + int32(m_caster->getLevel()) - int32(unitTarget->getLevel());
 
-        if (chance > irand(0, 19))
+        if (chance > irand(0, 12))
         {
             // Stealing successful
             // DEBUG_LOG("Sending loot from pickpocket");
@@ -5199,9 +5199,11 @@ void Spell::EffectSkill(SpellEffectIndex /*eff_idx*/)
 
 void Spell::EffectSummonDemon(SpellEffectIndex eff_idx)
 {
-    float px = m_targets.m_destX;
-    float py = m_targets.m_destY;
-    float pz = m_targets.m_destZ;
+    float px;
+    float py;
+    float pz;
+
+    m_caster->GetClosePoint(px, py, pz, m_caster->GetObjectScale());
 
     Creature* Charmed = m_caster->SummonCreature(m_spellInfo->EffectMiscValue[eff_idx], px, py, pz, m_caster->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 3600000);
     if (!Charmed)

@@ -2507,7 +2507,7 @@ void Spell::EffectPickPocket(SpellEffectIndex /*eff_idx*/)
     {
         int32 chance = 10 + int32(m_caster->getLevel()) - int32(unitTarget->getLevel());
 
-        if (chance > irand(0, 5))
+        if (chance > irand(0, 12))
         {
             // Stealing successful
             // DEBUG_LOG("Sending loot from pickpocket");

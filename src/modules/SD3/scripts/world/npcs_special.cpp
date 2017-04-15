@@ -43,6 +43,7 @@
  * ContentData
  * npc_chicken_cluck          100%    support for quest 3861 (Cluck!)
  * target_dummy               100%    target dummy should not attack player and should now correctly taunt.
+ * Explosive Sheep            100%    Explove sheep should now explod
 #if defined (TBC) || defined (WOTLK) || defined (CATA)  
  * npc_air_force_bots          80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
  * npc_dancing_flames         100%    midsummer event NPC
@@ -298,6 +299,66 @@ struct npc_air_force_bots : public CreatureScript
     }
 };
 #endif
+
+
+/*########
+# npc_explosive_sheep
+#########*/
+
+enum
+{
+    NPC_EXPLOSIVE_SHEEP = 2675,
+    SPELL_EXPLOSIVE_SHEEP = 4050
+};
+
+class npc_explosive_sheep : public CreatureScript
+{
+public:
+    npc_explosive_sheep() : CreatureScript("npc_explosive_sheep") { }
+
+    struct npc_explosive_sheepAI : ScriptedAI
+    {
+        npc_explosive_sheepAI(Creature* creature) : ScriptedAI(creature)
+        {
+            checkTimer = 0;
+        }
+
+        uint32 checkTimer;
+
+        void UpdateAI(const uint32 uiDiff) override
+        {
+            checkTimer += uiDiff;
+            if (checkTimer >= 1000)
+            {
+
+                checkTimer = 0;
+                if (Unit* target = m_creature->SelectRandomUnfriendlyTarget(NULL, 30.0f))
+                {
+                    m_creature->GetMotionMaster()->MoveChase(target);
+                    if (m_creature->GetDistance(target) < 3.0f)
+                    {
+                        m_creature->CastSpell(m_creature, SPELL_EXPLOSIVE_SHEEP, false);
+                        m_creature->ForcedDespawn(500);
+                    }
+                }
+                else if (!m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+                {
+                    if (Unit* owner = m_creature->GetCharmerOrOwner())
+                    {
+                        m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                    }
+                }
+            }
+        }
+
+     };
+
+        CreatureAI* GetAI(Creature* pCreature) override
+        {
+            return new npc_explosive_sheepAI(pCreature);
+        }
+};
+
 
 /*########
 # npc_target_dummy
@@ -1964,6 +2025,8 @@ void AddSC_npcs_special()
     s = new spell_npc_redemption_target();
     s->RegisterSelf();
     s = new npc_target_dummy();
+    s->RegisterSelf();
+    s = new npc_explosive_sheep();
     s->RegisterSelf();
 #endif
 #if defined(TBC) || defined(WOTLK)
